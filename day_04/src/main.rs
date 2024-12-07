@@ -11,9 +11,13 @@ fn main() {
 
     let contents = read_file(file_path).expect("Failed to read file");
     let grid: Vec<Vec<char>> = contents.lines().map(|line| line.chars().collect()).collect();
-    let total = search_word(&grid, word).expect("Failed to search word");
 
-    println!("Part 1, the total is: {}", total);
+    let word_count = search_word(&grid, word).expect("Failed to search for word");
+    let xmas_count = count_xmas_patterns(grid).expect("Failed to count XMAS patterns");
+
+    println!("Part 1, the word {} appears {} times", word, word_count);
+    println!("Part 2, the XMAS pattern appears {} times", xmas_count);
+    
 }
 
 fn read_file(file_path: &str) -> Result<String, Box<dyn Error>> {
@@ -42,14 +46,14 @@ fn search_word(grid: &[Vec<char>], word: &str) -> Result<usize, Box<dyn Error>> 
     let grid_height = grid.len();
     let grid_width = grid[0].len();
 
-    for i in 0..grid_height {
-        for j in 0..grid_width {
-            if grid[i][j] == word.chars().next().unwrap() {
+    for row in 0..grid_height {
+        for col in 0..grid_width {
+            if grid[row][col] == word.chars().next().unwrap() {
                 for &(dx, dy) in &directions {
                     let mut k = 1;
                     while k < word_len {
-                        let x = i as isize + k as isize * dx;
-                        let y = j as isize + k as isize * dy;
+                        let x = row as isize + k as isize * dx;
+                        let y = col as isize + k as isize * dy;
 
                         if x < 0 || x >= grid_height as isize || y < 0 || y >= grid_width as isize {
                             break;
@@ -69,7 +73,36 @@ fn search_word(grid: &[Vec<char>], word: &str) -> Result<usize, Box<dyn Error>> 
             }
         }
     }
-
     Ok(count)
 }
 
+fn count_xmas_patterns(grid: Vec<Vec<char>>) -> Result<usize, Box<dyn Error>> {
+    let grid_height = grid.len();
+    let grid_width = grid[0].len();
+    let mut count = 0;
+
+    fn is_valid_xmas(grid: &Vec<Vec<char>>, row: usize, col: usize, grid_height: usize, grid_width: usize) -> bool {
+        if row + 2 >= grid_height || col == 0 || col + 1 >= grid_width {
+            return false;
+        }
+
+        let top_left = grid[row][col];
+        let center = grid[row + 1][col];
+        let bottom_right = grid[row + 2][col + 1];
+        let top_right = grid[row][col + 1];
+        let bottom_left = grid[row + 2][col - 1];
+
+        (top_left == 'M' && center == 'A' && bottom_right == 'S' && top_right == 'S' && bottom_left == 'M') ||
+        (top_left == 'S' && center == 'A' && bottom_right == 'M' && top_right == 'M' && bottom_left == 'S')
+    }
+
+    for row in 0..grid_height {
+        for col in 0..grid_width {
+            if is_valid_xmas(&grid, row, col, grid_height, grid_width) {
+                count += 1;
+            }
+        }
+    }
+
+    Ok(count)
+}
