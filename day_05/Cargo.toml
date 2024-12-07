@@ -3,4 +3,17 @@ name = "day_05"
 version = "0.1.0"
 edition = "2021"
 
+[workspace]
+members = [
+]
+
+[[bin]]
+name = "day_05"
+path = "src/main.rs"
+
+[[test]]
+name = "test"
+path = "tests/test.rs"
+
 [dependencies]
+utils = { path = "../utils", version="1.0.0" }

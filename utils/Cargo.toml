@@ -1,7 +1,10 @@
 [package]
-name = "day_03"
+name = "utils"
 version = "1.0.0"
 edition = "2021"
 
+[lib]
+name = "utils"
+path = "src/lib.rs"
+
 [dependencies]
-regex = "1.11.1"
